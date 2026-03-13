@@ -9,6 +9,7 @@ using ApiExceptionMiddleware = PswChallenge.Api.Middlewares.ExceptionHandlerMidd
 using PswChallenge.Application.Configuration;
 using PswChallenge.Application.Services;
 using PswChallenge.Application.Services.Interfaces;
+using PswChallenge.Infra.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddScoped<ApiExceptionMiddleware>();
+builder.Services.ConfigureInfrastructure();
 
 // Configure Swagger/OpenAPI with JWT Bearer support
 builder.Services.AddSwaggerGen(options =>

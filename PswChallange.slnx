@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
   <Project Path="src/PswChallenge.Api/PswChallenge.Api.csproj" />
   <Project Path="src/PswChallenge.Application/PswChallenge.Application.csproj" />
+  <Project Path="src/PswChallenge.Infra/PswChallenge.Infra.csproj" />
 </Solution>
