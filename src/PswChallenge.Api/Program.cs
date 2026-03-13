@@ -129,6 +129,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseOutputCache();
 
+// Cached JsonSerializerOptions for health check responses
+var healthCheckJsonOptions = new JsonSerializerOptions
+{
+    WriteIndented = true
+};
+
 // Map Health Check endpoints (no authentication required)
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
@@ -151,10 +157,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
                 data = e.Value.Data,
                 tags = e.Value.Tags
             })
-        }, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        }, healthCheckJsonOptions);
 
         await context.Response.WriteAsync(result);
     }
