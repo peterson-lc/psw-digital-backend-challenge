@@ -11,7 +11,7 @@ public sealed class ApiResponseModel<T>(bool succeeded, T? data, IEnumerable<str
 
     public static ApiResponseModel<T> Success(T data, IEnumerable<string>? messages = null)
     {
-        return new ApiResponseModel<T>(true, data, messages ?? Enumerable.Empty<string>());
+        return new ApiResponseModel<T>(true, data, messages ?? []);
     }
 
     public static ApiResponseModel<T> Failure(IEnumerable<string> messages)

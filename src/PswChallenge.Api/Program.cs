@@ -76,11 +76,11 @@ builder.Services.AddHealthChecks()
     .AddCheck<BrasilApiHealthCheck>(
         name: "brasilapi",
         failureStatus: HealthStatus.Degraded,
-        tags: new[] { "external", "api" })
+        tags: ["external", "api"])
     .AddCheck(
         name: "self",
         () => HealthCheckResult.Healthy("Application is running"),
-        tags: new[] { "self" });
+        tags: ["self"]);
 
 // Configure JWT Bearer authentication
 var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
