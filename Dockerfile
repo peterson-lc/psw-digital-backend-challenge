@@ -4,7 +4,7 @@ WORKDIR /src
 
 # Copy central package management and solution files
 COPY Directory.Packages.props ./
-COPY PswChallange.slnx ./
+COPY PswChallenge.slnx ./
 
 # Copy project files for restore
 COPY src/PswChallenge.Api/PswChallenge.Api.csproj src/PswChallenge.Api/
