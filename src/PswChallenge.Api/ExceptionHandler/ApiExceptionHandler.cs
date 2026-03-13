@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Diagnostics;
 using PswChallenge.Application.Models.Base;
 
 namespace PswChallenge.Api.ExceptionHandler;
 
+[ExcludeFromCodeCoverage]
 internal sealed class ApiExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,

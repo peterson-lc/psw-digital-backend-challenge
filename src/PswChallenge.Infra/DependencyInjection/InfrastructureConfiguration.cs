@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PswChallenge.Application.Configuration;
@@ -7,6 +8,7 @@ using Refit;
 
 namespace PswChallenge.Infra.DependencyInjection;
 
+[ExcludeFromCodeCoverage]
 public static class InfrastructureConfiguration
 {
     public static void ConfigureInfrastructure(this IServiceCollection services, IConfiguration configuration)

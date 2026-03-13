@@ -1,6 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PswChallenge.Api.Endpoints.Auth;
@@ -104,3 +104,6 @@ app.MapAuthEndpoints();
 app.MapHolidaysEndpoints();
 
 await app.RunAsync();
+
+[ExcludeFromCodeCoverage]
+public partial class Program;

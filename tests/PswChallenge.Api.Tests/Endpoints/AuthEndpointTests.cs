@@ -1,3 +1,6 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using Moq;
 using PswChallenge.Application.Models.Auth;
@@ -6,92 +9,101 @@ using PswChallenge.Application.Services.Interfaces;
 
 namespace PswChallenge.Api.Tests.Endpoints;
 
-public class AuthEndpointTests
+public class AuthEndpointTests : IDisposable
 {
-    private readonly Mock<IAuthService> _mockAuthService;
+    private readonly CustomWebApplicationFactory _factory;
+    private readonly HttpClient _client;
+
+    private static readonly JsonSerializerOptions JsonOptions =
+        new(JsonSerializerDefaults.Web);
 
     public AuthEndpointTests()
     {
-        _mockAuthService = new Mock<IAuthService>();
+        _factory = new CustomWebApplicationFactory();
+        _client = _factory.CreateClient();
+    }
+
+    public void Dispose()
+    {
+        _client.Dispose();
+        _factory.Dispose();
     }
 
     [Fact]
-    public async Task LoginAsync_WithValidCredentials_ReturnsSuccessResponse()
+    public async Task Login_WithValidCredentials_ReturnsOk()
     {
         // Arrange
-        var email = "admin@test.com";
-        var password = "AdminPassword123!";
-        var loginResponse = new LoginResponseModel("test-token", DateTime.UtcNow.AddHours(1));
-
-        _mockAuthService
-            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
+        var loginResponse = new LoginResponseModel("test-jwt-token", DateTime.UtcNow.AddHours(1));
+        _factory.AuthServiceMock
+            .Setup(x => x.LoginAsync("admin@email.com", "Admin@123", It.IsAny<CancellationToken>()))
             .ReturnsAsync(loginResponse);
 
+        var request = new { email = "admin@email.com", password = "Admin@123" };
+
         // Act
-        var result = await _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None);
+        var response = await _client.PostAsJsonAsync("/auth/login", request);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Token.Should().NotBeNullOrEmpty();
-        result.Expiration.Should().BeAfter(DateTime.UtcNow);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task LoginAsync_WithInvalidCredentials_ThrowsUnauthorizedAccessException()
+    public async Task Login_WithValidCredentials_ReturnsSucceededResponseWithToken()
     {
         // Arrange
-        var email = "wrong@test.com";
-        var password = "WrongPassword";
-
-        _mockAuthService
-            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new UnauthorizedAccessException("Invalid credentials"));
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(
-            () => _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None));
-    }
-
-    [Fact]
-    public async Task LoginAsync_ReturnsApiResponseModel_WithCorrectStructure()
-    {
-        // Arrange
-        var email = "admin@test.com";
-        var password = "AdminPassword123!";
-        var loginResponse = new LoginResponseModel("test-token", DateTime.UtcNow.AddHours(1));
-
-        _mockAuthService
-            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
+        var loginResponse = new LoginResponseModel("test-jwt-token", DateTime.UtcNow.AddHours(1));
+        _factory.AuthServiceMock
+            .Setup(x => x.LoginAsync("admin@email.com", "Admin@123", It.IsAny<CancellationToken>()))
             .ReturnsAsync(loginResponse);
 
+        var request = new { email = "admin@email.com", password = "Admin@123" };
+
         // Act
-        var result = await _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None);
-        var apiResponse = ApiResponseModel<LoginResponseModel>.Success(result);
+        var response = await _client.PostAsJsonAsync("/auth/login", request);
+        var body = await response.Content.ReadFromJsonAsync<ApiResponseModel<LoginResponseModel>>(JsonOptions);
 
         // Assert
-        apiResponse.Should().NotBeNull();
-        apiResponse.Succeeded.Should().BeTrue();
-        apiResponse.Data.Should().NotBeNull();
-        apiResponse.Data.Token.Should().Be("test-token");
+        body.Should().NotBeNull();
+        body!.Succeeded.Should().BeTrue();
+        body.Data.Should().NotBeNull();
+        body.Data!.Token.Should().Be("test-jwt-token");
     }
 
     [Fact]
-    public async Task LoginAsync_WithValidCredentials_CallsAuthServiceOnce()
+    public async Task Login_WithInvalidCredentials_ReturnsBadRequest()
     {
         // Arrange
-        var email = "admin@test.com";
-        var password = "AdminPassword123!";
-        var loginResponse = new LoginResponseModel("test-token", DateTime.UtcNow.AddHours(1));
+        _factory.AuthServiceMock
+            .Setup(x => x.LoginAsync("wrong@test.com", "WrongPass", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UnauthorizedAccessException("Invalid credentials."));
 
-        _mockAuthService
-            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(loginResponse);
+        var request = new { email = "wrong@test.com", password = "WrongPass" };
 
         // Act
-        await _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None);
+        var response = await _client.PostAsJsonAsync("/auth/login", request);
 
         // Assert
-        _mockAuthService.Verify(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()), Times.Once);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Login_WithInvalidCredentials_ReturnsFailureResponseWithMessage()
+    {
+        // Arrange
+        _factory.AuthServiceMock
+            .Setup(x => x.LoginAsync("wrong@test.com", "WrongPass", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UnauthorizedAccessException("Invalid credentials."));
+
+        var request = new { email = "wrong@test.com", password = "WrongPass" };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/auth/login", request);
+        var body = await response.Content.ReadFromJsonAsync<ApiResponseModel<LoginResponseModel>>(JsonOptions);
+
+        // Assert
+        body.Should().NotBeNull();
+        body!.Succeeded.Should().BeFalse();
+        body.Messages.Should().Contain("Invalid credentials.");
     }
 }
 

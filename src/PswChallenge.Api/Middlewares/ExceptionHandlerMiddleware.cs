@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace PswChallenge.Api.Middlewares;
 
+[ExcludeFromCodeCoverage]
 internal sealed class ExceptionHandlerMiddleware(IExceptionHandler handler, ILogger<ExceptionHandlerMiddleware> logger)
     : IMiddleware
 {
