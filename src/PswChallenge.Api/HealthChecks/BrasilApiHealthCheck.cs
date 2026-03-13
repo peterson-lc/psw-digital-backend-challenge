@@ -9,6 +9,8 @@ namespace PswChallenge.Api.HealthChecks;
 /// </summary>
 public class BrasilApiHealthCheck(IBrasilApi brasilApi, ILogger<BrasilApiHealthCheck> logger) : IHealthCheck
 {
+    private const string TimestampKey = "timestamp";
+
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
@@ -31,7 +33,7 @@ public class BrasilApiHealthCheck(IBrasilApi brasilApi, ILogger<BrasilApiHealthC
                     data: new Dictionary<string, object>
                     {
                         { "year", currentYear },
-                        { "timestamp", DateTime.UtcNow }
+                        { TimestampKey, DateTime.UtcNow }
                     });
             }
 
@@ -41,7 +43,7 @@ public class BrasilApiHealthCheck(IBrasilApi brasilApi, ILogger<BrasilApiHealthC
                 {
                     { "year", currentYear },
                     { "holidayCount", holidays.Count() },
-                    { "timestamp", DateTime.UtcNow }
+                    { TimestampKey, DateTime.UtcNow }
                 });
         }
         catch (TaskCanceledException ex)
@@ -53,7 +55,7 @@ public class BrasilApiHealthCheck(IBrasilApi brasilApi, ILogger<BrasilApiHealthC
                 data: new Dictionary<string, object>
                 {
                     { "timeout", "5 seconds" },
-                    { "timestamp", DateTime.UtcNow }
+                    { TimestampKey, DateTime.UtcNow }
                 });
         }
         catch (HttpRequestException ex)
@@ -65,7 +67,7 @@ public class BrasilApiHealthCheck(IBrasilApi brasilApi, ILogger<BrasilApiHealthC
                 data: new Dictionary<string, object>
                 {
                     { "error", ex.Message },
-                    { "timestamp", DateTime.UtcNow }
+                    { TimestampKey, DateTime.UtcNow }
                 });
         }
         catch (Exception ex)
@@ -77,7 +79,7 @@ public class BrasilApiHealthCheck(IBrasilApi brasilApi, ILogger<BrasilApiHealthC
                 data: new Dictionary<string, object>
                 {
                     { "error", ex.Message },
-                    { "timestamp", DateTime.UtcNow }
+                    { TimestampKey, DateTime.UtcNow }
                 });
         }
     }
