@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PswChallenge.Application.Services.Interfaces;
 using PswChallenge.Infra.ExternalServices.BrasilApi;
 using Refit;
 
@@ -18,7 +18,8 @@ public static class InfrastructureConfiguration
         {
             services.AddRefitClient<IBrasilApi>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://brasilapi.com.br"));
-            
+
+            services.AddScoped<IHolidayExternalService, BrasilApiHolidayService>();
         }
     }
 }

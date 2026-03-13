@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PswChallenge.Api.Endpoints.Auth;
+using PswChallenge.Api.Endpoints.Holidays;
+using PswChallenge.Application.Queries.GetHolidays;
 using PswChallenge.Api.ExceptionHandler;
 using ApiExceptionMiddleware = PswChallenge.Api.Middlewares.ExceptionHandlerMiddleware;
 using PswChallenge.Application.Configuration;
@@ -52,6 +54,7 @@ builder.Services.Configure<AdminCredentialsOptions>(
 
 // Register application services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetHolidaysQuery).Assembly));
 
 // Configure JWT Bearer authentication
 var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
@@ -96,5 +99,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapHolidaysEndpoints();
 
 await app.RunAsync();

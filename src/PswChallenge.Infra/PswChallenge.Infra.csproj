@@ -10,5 +10,9 @@
       <PackageReference Include="Refit.HttpClientFactory" />
       <PackageReference Include="Refit" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\PswChallenge.Application\PswChallenge.Application.csproj" />
+    </ItemGroup>
 
 </Project>
