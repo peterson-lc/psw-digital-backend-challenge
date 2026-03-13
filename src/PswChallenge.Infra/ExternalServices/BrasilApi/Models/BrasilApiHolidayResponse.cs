@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace PswChallenge.Infra.ExternalServices.BrasilApi.Models;
 
+[ExcludeFromCodeCoverage]
 public class BrasilApiHolidayResponse
 {
     [JsonPropertyName("date")]

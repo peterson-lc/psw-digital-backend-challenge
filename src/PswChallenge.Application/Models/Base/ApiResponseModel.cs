@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PswChallenge.Application.Models.Base;
 
-
+[ExcludeFromCodeCoverage]
 public sealed class ApiResponseModel<T>(bool succeeded, T? data, IEnumerable<string> messages)
 {
     public bool Succeeded { get; set; } = succeeded;

@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PswChallenge.Application.Configuration;
 
+[ExcludeFromCodeCoverage]
 public sealed class JwtOptions
 {
     public const string SectionName = "Jwt";

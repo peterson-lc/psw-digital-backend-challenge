@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PswChallenge.Application.Configuration;
 
+[ExcludeFromCodeCoverage]
 public sealed class AdminCredentialsOptions
 {
     public const string SectionName = "AdminCredentials";
