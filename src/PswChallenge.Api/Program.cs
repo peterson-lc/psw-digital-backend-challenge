@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddScoped<ApiExceptionMiddleware>();
-builder.Services.ConfigureInfrastructure();
+builder.Services.ConfigureInfrastructure(builder.Configuration);
 
 // Configure Swagger/OpenAPI with JWT Bearer support
 builder.Services.AddSwaggerGen(options =>
