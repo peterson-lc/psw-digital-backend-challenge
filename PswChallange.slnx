@@ -2,6 +2,11 @@
   <Folder Name="/SolutionItems/">
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PswChallenge.Api.Tests/PswChallenge.Api.Tests.csproj" />
+    <Project Path="tests/PswChallenge.Application.Tests/PswChallenge.Application.Tests.csproj" />
+    <Project Path="tests/PswChallenge.Infra.Tests/PswChallenge.Infra.Tests.csproj" />
+  </Folder>
   <Project Path="src/PswChallenge.Api/PswChallenge.Api.csproj" />
   <Project Path="src/PswChallenge.Application/PswChallenge.Application.csproj" />
   <Project Path="src/PswChallenge.Infra/PswChallenge.Infra.csproj" />
