@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using PswChallenge.Application.Models.Base;
 using PswChallenge.Application.Models.Holidays;
 using PswChallenge.Application.Queries.GetHolidays;
@@ -11,22 +12,30 @@ internal static class HolidaysEndpoints
     {
         internal void MapHolidaysEndpoints()
         {
-            builder.MapGet("/holidays/{year}", GetHolidaysAsync)
+            builder.MapGet("api/holidays/{year}", GetHolidaysAsync)
                 .WithName("GetHolidays")
                 .WithTags("holidays")
-                .Produces<ApiResponseModel<IEnumerable<HolidayDto>>>()
+                .Produces<ApiResponseModel<HolidaysResponseModel>>()
                 .Produces(StatusCodes.Status401Unauthorized)
                 .RequireAuthorization()
-                .CacheOutput(policy => policy.Expire(TimeSpan.FromHours(24)).SetVaryByRouteValue("year"));
+                .CacheOutput(policy => policy
+                    .Expire(TimeSpan.FromHours(24))
+                    .SetVaryByRouteValue("year")
+                    .SetVaryByQuery("name", "type", "date", "orderBy"));
         }
     }
 
     private static async Task<IResult> GetHolidaysAsync(
         int year,
-        IMediator mediator,
-        CancellationToken cancellationToken)
+        [FromQuery] string? name,
+        [FromQuery] HolidayType? type,
+        [FromQuery] DateOnly? date,
+        [FromQuery] HolidayOrderBy orderBy = HolidayOrderBy.Date,
+        IMediator mediator = null!,
+        CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new GetHolidaysQuery(year), cancellationToken);
+        var query = new GetHolidaysQuery(year, name, type, date, orderBy);
+        var response = await mediator.Send(query, cancellationToken);
         return Results.Ok(response);
     }
 }

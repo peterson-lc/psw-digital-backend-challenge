@@ -56,7 +56,7 @@ public class HolidaysEndpointTests : IDisposable
     public async Task GetHolidays_WithoutAuthToken_ReturnsUnauthorized()
     {
         // Act
-        var response = await _client.GetAsync("/holidays/2025");
+        var response = await _client.GetAsync("/api/holidays/2025");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -72,15 +72,17 @@ public class HolidaysEndpointTests : IDisposable
             new(new DateOnly(2025, 4, 18), "Sexta-feira Santa", HolidayType.National)
         };
 
+        var responseModel = new HolidaysResponseModel(holidays, holidays.Count);
+
         _factory.MediatorMock
             .Setup(x => x.Send(It.IsAny<GetHolidaysQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ApiResponseModel<IEnumerable<HolidayDto>>.Success(holidays));
+            .ReturnsAsync(ApiResponseModel<HolidaysResponseModel>.Success(responseModel));
 
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", GenerateJwtToken());
 
         // Act
-        var response = await _client.GetAsync("/holidays/2025");
+        var response = await _client.GetAsync("/api/holidays/2025");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -96,42 +98,98 @@ public class HolidaysEndpointTests : IDisposable
             new(new DateOnly(2025, 12, 25), "Natal", HolidayType.National)
         };
 
+        var responseModel = new HolidaysResponseModel(holidays, holidays.Count);
+
         _factory.MediatorMock
             .Setup(x => x.Send(It.IsAny<GetHolidaysQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ApiResponseModel<IEnumerable<HolidayDto>>.Success(holidays));
+            .ReturnsAsync(ApiResponseModel<HolidaysResponseModel>.Success(responseModel));
 
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", GenerateJwtToken());
 
         // Act
-        var response = await _client.GetAsync("/holidays/2025");
+        var response = await _client.GetAsync("/api/holidays/2025");
         var body = await response.Content
-            .ReadFromJsonAsync<ApiResponseModel<IEnumerable<HolidayDto>>>(JsonOptions);
+            .ReadFromJsonAsync<ApiResponseModel<HolidaysResponseModel>>(JsonOptions);
 
         // Assert
         body.Should().NotBeNull();
         body!.Succeeded.Should().BeTrue();
-        body.Data.Should().HaveCount(2);
+        body.Data.Should().NotBeNull();
+        body.Data.Holidays.Should().HaveCount(2);
+        body.Data.Total.Should().Be(2);
     }
 
     [Fact]
     public async Task GetHolidays_WithValidToken_SendsQueryWithCorrectYear()
     {
         // Arrange
+        var responseModel = new HolidaysResponseModel([], 0);
         _factory.MediatorMock
             .Setup(x => x.Send(It.IsAny<GetHolidaysQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ApiResponseModel<IEnumerable<HolidayDto>>.Success([]));
+            .ReturnsAsync(ApiResponseModel<HolidaysResponseModel>.Success(responseModel));
 
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", GenerateJwtToken());
 
         // Act
-        await _client.GetAsync("/holidays/2026");
+        await _client.GetAsync("/api/holidays/2026");
 
         // Assert
         _factory.MediatorMock.Verify(
             x => x.Send(It.Is<GetHolidaysQuery>(q => q.Year == 2026), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task GetHolidays_WithQueryParameters_SendsQueryWithFilters()
+    {
+        // Arrange
+        var responseModel = new HolidaysResponseModel([], 0);
+        _factory.MediatorMock
+            .Setup(x => x.Send(It.IsAny<GetHolidaysQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponseModel<HolidaysResponseModel>.Success(responseModel));
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", GenerateJwtToken());
+
+        // Act
+        await _client.GetAsync("/api/holidays/2025?name=natal&type=National&orderBy=Name");
+
+        // Assert
+        _factory.MediatorMock.Verify(
+            x => x.Send(It.Is<GetHolidaysQuery>(q =>
+                q.Year == 2025 &&
+                q.Name == "natal" &&
+                q.Type == HolidayType.National &&
+                q.OrderBy == HolidayOrderBy.Name),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GetHolidays_WithDateFilter_SendsQueryWithDateFilter()
+    {
+        // Arrange
+        var responseModel = new HolidaysResponseModel([], 0);
+        _factory.MediatorMock
+            .Setup(x => x.Send(It.IsAny<GetHolidaysQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponseModel<HolidaysResponseModel>.Success(responseModel));
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", GenerateJwtToken());
+
+        // Act
+        await _client.GetAsync("/api/holidays/2025?date=2025-12-25");
+
+        // Assert
+        _factory.MediatorMock.Verify(
+            x => x.Send(It.Is<GetHolidaysQuery>(q =>
+                q.Year == 2025 &&
+                q.Date == new DateOnly(2025, 12, 25)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }
+
 

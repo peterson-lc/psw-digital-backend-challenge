@@ -1,9 +1,12 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PswChallenge.Api.Endpoints.Auth;
 using PswChallenge.Api.Endpoints.Holidays;
+using PswChallenge.Api.HealthChecks;
 using PswChallenge.Application.Queries.GetHolidays;
 using PswChallenge.Api.ExceptionHandler;
 using ApiExceptionMiddleware = PswChallenge.Api.Middlewares.ExceptionHandlerMiddleware;
@@ -11,6 +14,7 @@ using PswChallenge.Application.Configuration;
 using PswChallenge.Application.Services;
 using PswChallenge.Application.Services.Interfaces;
 using PswChallenge.Infra.DependencyInjection;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +60,28 @@ builder.Services.AddOutputCache();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetHolidaysQuery).Assembly));
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Configure Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck<BrasilApiHealthCheck>(
+        name: "brasilapi",
+        failureStatus: HealthStatus.Degraded,
+        tags: new[] { "external", "api" })
+    .AddCheck(
+        name: "self",
+        () => HealthCheckResult.Healthy("Application is running"),
+        tags: new[] { "self" });
+
 // Configure JWT Bearer authentication
 var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
 var secretKey = jwtSection["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
@@ -95,9 +121,47 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseHttpsRedirection();
+
+// Apply CORS policy (must be before authentication/authorization)
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseOutputCache();
+
+// Map Health Check endpoints (no authentication required)
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var result = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            timestamp = DateTime.UtcNow,
+            duration = report.TotalDuration,
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description,
+                duration = e.Value.Duration,
+                exception = e.Value.Exception?.Message,
+                data = e.Value.Data,
+                tags = e.Value.Tags
+            })
+        }, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        await context.Response.WriteAsync(result);
+    }
+}).AllowAnonymous();
+
+// Simplified health check endpoint
+app.MapHealthChecks("/healthz").AllowAnonymous();
 
 app.MapAuthEndpoints();
 app.MapHolidaysEndpoints();

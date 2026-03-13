@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/SolutionItems/">
     <File Path="Directory.Packages.props" />
+    <File Path="Dockerfile" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PswChallenge.Api.Tests/PswChallenge.Api.Tests.csproj" />

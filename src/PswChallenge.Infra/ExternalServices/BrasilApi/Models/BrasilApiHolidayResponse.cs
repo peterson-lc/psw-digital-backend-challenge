@@ -20,5 +20,8 @@ public class BrasilApiHolidayResponse
 public enum BrasilApiHolidayType
 {
     [JsonStringEnumMemberName("national")]
-    National
+    National,
+
+    [JsonStringEnumMemberName("municipal")]
+    Municipal
 }

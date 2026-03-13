@@ -14,6 +14,7 @@ public static class InfrastructureConfiguration
     public static void ConfigureInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<BrasilApiOptions>(configuration.GetSection(BrasilApiOptions.SectionName));
+        services.AddMemoryCache();
         services.AddExternalServices(configuration);
     }
 

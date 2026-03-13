@@ -5,6 +5,6 @@ namespace PswChallenge.Infra.ExternalServices.BrasilApi;
 
 public interface IBrasilApi
 {
-    [Get("feriados/v1/{year}")]
+    [Get("/feriados/v1/{year}")]
     Task<IEnumerable<BrasilApiHolidayResponse>> GetHoliday(int year, CancellationToken cancellationToken = default);
 }
