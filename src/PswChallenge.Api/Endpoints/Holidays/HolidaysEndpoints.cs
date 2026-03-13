@@ -16,7 +16,8 @@ internal static class HolidaysEndpoints
                 .WithTags("holidays")
                 .Produces<ApiResponseModel<IEnumerable<HolidayDto>>>()
                 .Produces(StatusCodes.Status401Unauthorized)
-                .RequireAuthorization();
+                .RequireAuthorization()
+                .CacheOutput(policy => policy.Expire(TimeSpan.FromHours(24)).SetVaryByRouteValue("year"));
         }
     }
 

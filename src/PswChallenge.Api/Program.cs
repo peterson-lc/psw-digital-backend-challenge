@@ -53,6 +53,7 @@ builder.Services.Configure<AdminCredentialsOptions>(
     builder.Configuration.GetSection(AdminCredentialsOptions.SectionName));
 
 // Register application services
+builder.Services.AddOutputCache();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetHolidaysQuery).Assembly));
 
@@ -97,6 +98,7 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseOutputCache();
 
 app.MapAuthEndpoints();
 app.MapHolidaysEndpoints();
