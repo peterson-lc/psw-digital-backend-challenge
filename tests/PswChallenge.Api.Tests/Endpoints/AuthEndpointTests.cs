@@ -41,7 +41,7 @@ public class AuthEndpointTests : IDisposable
         var request = new { email = "admin@email.com", password = "Admin@123" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/auth/login", request);
+        var response = await _client.PostAsJsonAsync("/api/auth/login", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -59,7 +59,7 @@ public class AuthEndpointTests : IDisposable
         var request = new { email = "admin@email.com", password = "Admin@123" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/auth/login", request);
+        var response = await _client.PostAsJsonAsync("/api/auth/login", request);
         var body = await response.Content.ReadFromJsonAsync<ApiResponseModel<LoginResponseModel>>(JsonOptions);
 
         // Assert
@@ -80,7 +80,7 @@ public class AuthEndpointTests : IDisposable
         var request = new { email = "wrong@test.com", password = "WrongPass" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/auth/login", request);
+        var response = await _client.PostAsJsonAsync("/api/auth/login", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -97,7 +97,7 @@ public class AuthEndpointTests : IDisposable
         var request = new { email = "wrong@test.com", password = "WrongPass" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/auth/login", request);
+        var response = await _client.PostAsJsonAsync("/api/auth/login", request);
         var body = await response.Content.ReadFromJsonAsync<ApiResponseModel<LoginResponseModel>>(JsonOptions);
 
         // Assert

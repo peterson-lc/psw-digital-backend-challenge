@@ -10,7 +10,7 @@ internal static class AuthEndpoints
     {
         internal void MapAuthEndpoints()
         {
-            builder.MapPost("/auth/login", LoginAsync)
+            builder.MapPost("api/auth/login", LoginAsync)
                 .WithName("Login")
                 .WithTags("auth")
                 .Produces<ApiResponseModel<LoginResponseModel>>()
