@@ -1,3 +1,6 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=peterson-lc_psw-digital-backend-challenge&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=peterson-lc_psw-digital-backend-challenge)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=peterson-lc_psw-digital-backend-challenge&metric=coverage)](https://sonarcloud.io/summary/new_code?id=peterson-lc_psw-digital-backend-challenge)
+
 # PSW Digital Backend Challenge
 
 A RESTful API built with .NET 10 that provides Brazilian holiday data sourced from the [BrasilAPI](https://brasilapi.com.br/), secured with JWT authentication.
