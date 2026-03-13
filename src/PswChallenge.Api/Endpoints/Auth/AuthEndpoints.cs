@@ -26,7 +26,7 @@ internal static class AuthEndpoints
     {
         try
         {
-            var response = await authService.LoginAsync(request.Email, request.Password);
+            var response = await authService.LoginAsync(request.Email, request.Password, cancellationToken);
             return Results.Ok(ApiResponseModel<LoginResponseModel>.Success(response));
         }
         catch (UnauthorizedAccessException ex)

@@ -16,8 +16,10 @@ public sealed class AuthService(
     private readonly AdminCredentialsOptions _adminCredentials = adminCredentials.Value;
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
-    public Task<LoginResponseModel> LoginAsync(string username, string password)
+    public Task<LoginResponseModel> LoginAsync(string username, string password, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!string.Equals(username, _adminCredentials.Username, StringComparison.Ordinal) ||
             !string.Equals(password, _adminCredentials.Password, StringComparison.Ordinal))
         {

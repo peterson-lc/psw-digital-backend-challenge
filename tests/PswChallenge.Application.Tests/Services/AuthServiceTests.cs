@@ -46,7 +46,7 @@ public class AuthServiceTests
         var password = "AdminPassword123!";
 
         // Act
-        var result = await _authService.LoginAsync(email, password);
+        var result = await _authService.LoginAsync(email, password, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -63,7 +63,7 @@ public class AuthServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(
-            () => _authService.LoginAsync(email, password));
+            () => _authService.LoginAsync(email, password, CancellationToken.None));
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class AuthServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(
-            () => _authService.LoginAsync(email, password));
+            () => _authService.LoginAsync(email, password, CancellationToken.None));
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class AuthServiceTests
         var password = "AdminPassword123!";
 
         // Act
-        var result = await _authService.LoginAsync(email, password);
+        var result = await _authService.LoginAsync(email, password, CancellationToken.None);
 
         // Assert
         result.Token.Should().NotBeNullOrEmpty();

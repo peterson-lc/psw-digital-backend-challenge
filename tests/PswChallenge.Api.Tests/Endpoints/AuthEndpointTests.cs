@@ -24,11 +24,11 @@ public class AuthEndpointTests
         var loginResponse = new LoginResponseModel("test-token", DateTime.UtcNow.AddHours(1));
 
         _mockAuthService
-            .Setup(x => x.LoginAsync(email, password))
+            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
             .ReturnsAsync(loginResponse);
 
         // Act
-        var result = await _mockAuthService.Object.LoginAsync(email, password);
+        var result = await _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -44,12 +44,12 @@ public class AuthEndpointTests
         var password = "WrongPassword";
 
         _mockAuthService
-            .Setup(x => x.LoginAsync(email, password))
+            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new UnauthorizedAccessException("Invalid credentials"));
 
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(
-            () => _mockAuthService.Object.LoginAsync(email, password));
+            () => _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None));
     }
 
     [Fact]
@@ -61,11 +61,11 @@ public class AuthEndpointTests
         var loginResponse = new LoginResponseModel("test-token", DateTime.UtcNow.AddHours(1));
 
         _mockAuthService
-            .Setup(x => x.LoginAsync(email, password))
+            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
             .ReturnsAsync(loginResponse);
 
         // Act
-        var result = await _mockAuthService.Object.LoginAsync(email, password);
+        var result = await _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None);
         var apiResponse = ApiResponseModel<LoginResponseModel>.Success(result);
 
         // Assert
@@ -84,14 +84,14 @@ public class AuthEndpointTests
         var loginResponse = new LoginResponseModel("test-token", DateTime.UtcNow.AddHours(1));
 
         _mockAuthService
-            .Setup(x => x.LoginAsync(email, password))
+            .Setup(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()))
             .ReturnsAsync(loginResponse);
 
         // Act
-        await _mockAuthService.Object.LoginAsync(email, password);
+        await _mockAuthService.Object.LoginAsync(email, password, CancellationToken.None);
 
         // Assert
-        _mockAuthService.Verify(x => x.LoginAsync(email, password), Times.Once);
+        _mockAuthService.Verify(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
